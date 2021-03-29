@@ -54,33 +54,20 @@ public class SimpleServer {
 		return result;
 	}
 
-	public static Map<String, String> queryToMap(String query){
-	    	Map<String, String> result = new HashMap<String, String>();
-	    	for (String param : query.split("&")) {
-			String pair[] = param.split("=");
-			if (pair.length>1) {
-		    		result.put(pair[0], pair[1]);
-			}else{
-		   	 	result.put(pair[0], "");
-			}
-	    	}
-	    	return result;
-	}
-
 	static class RenderPNG implements HttpHandler {
 		@Override
 		public void handle(HttpExchange t) throws IOException {
-			Map <String,String>params = SimpleServer.queryToMap(t.getRequestURI().getQuery());
-			System.out.println(params);
-
 		    	OutputStream os = t.getResponseBody();
 			try{
-				BufferedImage img = buildImage(params.get("mdc"));
+				String mdc = t.getRequestURI().getQuery().split("mdc=")[1];
+				System.out.println(mdc);
+				BufferedImage img = buildImage(mdc);
+				//BufferedImage img = buildImage(params.get("mdc"));
 				Headers headers = t.getResponseHeaders();
 				headers.add("Content-Type", "image/png");
 				t.sendResponseHeaders(200, 0);
 				ImageIO.write(img, "png", os);
-			}catch(MDCSyntaxError e){
+			}catch(Exception e){
 				System.out.println(e.getMessage());
 				String response = e.getMessage();
 				t.sendResponseHeaders(404, response.length());
@@ -93,9 +80,15 @@ public class SimpleServer {
 
 	public static void main(String args[]) throws MDCSyntaxError, IOException {
 		ImageIO.setUseCache(false);
+		System.setProperty("sun.net.httpserver.maxReqTime", "10");
+		System.setProperty("sun.net.httpserver.maxRspTime", "10");
+		System.setProperty("sun.net.httpserver.maxIdleConnections", "10");
+        	System.setProperty("sun.net.httpserver.idleInterval", "20");
+        	System.setProperty("sun.net.httpserver.debug", "true");
 		HttpServer server = HttpServer.create(new InetSocketAddress(80), 0);
 		server.createContext("/render", new RenderPNG());
 		server.setExecutor(null); 
+		System.out.println("Starting up");
 		server.start();
 	}
 }
