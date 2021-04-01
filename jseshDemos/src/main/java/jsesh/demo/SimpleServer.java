@@ -35,12 +35,12 @@ import jsesh.mdc.*;
 
 public class SimpleServer {
 
-	public static BufferedImage buildImage(String mdcText)
+	public static BufferedImage buildImage(String mdcText, int height)
 			throws MDCSyntaxError {
 		// Create the drawing system:
 		MDCDrawingFacade drawing = new MDCDrawingFacade();
 		// Change the scale, choosing the cadrat height in pixels.
-		drawing.setCadratHeight(60);
+		drawing.setCadratHeight(height);
 		// Change a number of parameters
 		DrawingSpecification drawingSpecifications = new DrawingSpecificationsImplementation();
 		drawingSpecifications.setTextDirection(TextDirection.LEFT_TO_RIGHT);
@@ -56,10 +56,14 @@ public class SimpleServer {
 		public void handle(HttpExchange t) throws IOException {
 		    	OutputStream os = t.getResponseBody();
 			try{
+				String[] heights = t.getRequestURI().getQuery().split("height=");
+				int height = 60;
+				if (heights.length>1){
+					height = Integer.parseInt(heights[1].split("&")[0]);
+				}
 				String mdc = t.getRequestURI().getQuery().split("mdc=")[1];
 				System.out.println(mdc);
-				BufferedImage img = buildImage(mdc);
-				//BufferedImage img = buildImage(params.get("mdc"));
+				BufferedImage img = buildImage(mdc,height);
 				Headers headers = t.getResponseHeaders();
 				headers.add("Content-Type", "image/png");
 				t.sendResponseHeaders(200, 0);
