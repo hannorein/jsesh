@@ -43,14 +43,11 @@ public class SimpleServer {
 		drawing.setCadratHeight(60);
 		// Change a number of parameters
 		DrawingSpecification drawingSpecifications = new DrawingSpecificationsImplementation();
-		PageLayout pageLayout = new PageLayout();
-		pageLayout.setLeftMargin(5);
-		pageLayout.setTopMargin(5);
 		drawingSpecifications.setTextDirection(TextDirection.LEFT_TO_RIGHT);
 		drawingSpecifications.setTextOrientation(TextOrientation.HORIZONTAL);	
 		drawing.setDrawingSpecifications(drawingSpecifications);
 		// Create the picture
-		BufferedImage result = drawing.createImage(mdcText);
+		BufferedImage result = drawing.createTransparentImage(mdcText);
 		return result;
 	}
 

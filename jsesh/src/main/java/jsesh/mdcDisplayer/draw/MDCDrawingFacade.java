@@ -58,6 +58,19 @@ public class MDCDrawingFacade {
 		TopItemList t = buidTopItemList(mdcCodes);
 		return createImage(t);
 	}
+	
+	/**
+	 * Generate a transparent picture for the manuel de codage text passed as argument.
+	 * 
+	 * @param mdcCodes
+	 *            : a description, in manuel de codage, of the text.
+	 * @return an image of the text.
+	 * @throws MDCSyntaxError
+	 */
+	public BufferedImage createTransparentImage(String mdcCodes) throws MDCSyntaxError {
+		TopItemList t = buidTopItemList(mdcCodes);
+		return createTransparentImage(t);
+	}
 
 	private TopItemList buidTopItemList(String mdcCodes) throws MDCSyntaxError {
 		MDCParserModelGenerator gen = new MDCParserModelGenerator();
@@ -95,6 +108,37 @@ public class MDCDrawingFacade {
 		return result;
 
 	}
+	
+	/**
+	 * Generate a transparent picture for a TopItemList passed as argument.
+	 * 
+	 * @param t
+	 * @return a new bufferedImage.
+	 */
+	public BufferedImage createTransparentImage(TopItemList t) {
+		ViewAndBounds viewAndBounds= new ViewAndBounds(t,0,0);
+		
+		BufferedImage result;
+
+		int width= (int) viewAndBounds.bounds.getWidth();
+		int height= (int) viewAndBounds.bounds.getHeight();
+		
+		if (width > maxWidth)
+			width = maxWidth;
+		if (height > maxHeight)
+			height = maxHeight;
+
+		result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = (Graphics2D) result.getGraphics();
+		g.setBackground(new Color(0,0,0,0));
+		g.clearRect(0, 0, width, height);
+		GraphicsUtils.antialias(g);
+		viewAndBounds.draw(g);
+		g.dispose();
+		return result;
+
+	}
+
 
 	/**
 	 * Draws the data on an existing graphic.
